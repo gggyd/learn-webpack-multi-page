@@ -91,9 +91,6 @@ if (TARGET === 'start' || !TARGET) {
 
 if (TARGET === 'build') {
   module.exports = merge(common, {
-    output: {
-    publicPath: '/',
-    },
     plugins: [
       new CleanPlugin([PATHS.build], {
         verbose: false
