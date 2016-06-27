@@ -1,5 +1,8 @@
+'use strict';
+
 const path = require('path');
 const webpack = require('webpack');
+var glob = require('glob');
 const merge = require('webpack-merge');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -13,11 +16,11 @@ const PATHS = {
   build: path.join(__dirname, buildPath)
 }
 
+const entries = getEntry('src/js/*.js', 'src/js/');
+const chunks = Object.keys(entries);
+
 const common = {
-  entry: {
-    index: './src/js/index.js',
-    about: './src/js/about.js'
-  },
+  entry: entries,
   output: {
     path: PATHS.build,
     publicPath: '/',
@@ -29,8 +32,7 @@ const common = {
       {
         test: /\.css$/,
         loader: ExtractTextPlugin.extract('style-loader', 'css-loader')
-      },
-      
+      }
     ]
   },
   plugins: [
@@ -39,36 +41,29 @@ const common = {
     }),
     new webpack.optimize.CommonsChunkPlugin({
       name: 'vendors',
-      chunks: ['index', 'about'],
-      minChunks: 2
+      chunks: chunks,
+      minChunks: chunks.length
     }),
-    new ExtractTextPlugin('css/[name].css'),
-    new HtmlWebpackPlugin({
-      favicon: './src/img/favicon.ico',
-      filename: './index.html',
-      template: './src/index.html',
-      inject: 'body',
-      hash: true,
-      chunks: ['vendors', 'index'],
-      minify: {
-        removeComments: true,
-        collapseWhitspace: false
-      }
-    }),
-    new HtmlWebpackPlugin({
-      favicon: './src/img/favicon.ico',
-      filename: './about.html',
-      template: './src/about.html',
-      inject: 'body',
-      hash: true,
-      chunks: ['vendors', 'about'],
-      minify: {
-        removeComments: true,
-        collapseWhitspace: false
-      }
-    })
+    new ExtractTextPlugin('css/[name].css')
   ]
 }
+
+const pages = Object.keys(getEntry('src/*.html', 'src/'));
+pages.forEach(function(pathname) {
+	let conf = {
+		filename: './' + pathname + '.html', 
+		template: './src/' + pathname + '.html', 
+		inject: false
+	};
+
+	if (pathname in common.entry) {
+		conf.favicon = './src/img/favicon.ico';
+		conf.inject = 'body';
+		conf.chunks = ['vendors', pathname];
+		conf.hash = true;
+	}
+	common.plugins.push(new HtmlWebpackPlugin(conf));
+});
 
 if (TARGET === 'start' || !TARGET) {
   module.exports = merge(common, {
@@ -105,4 +100,25 @@ if (TARGET === 'build') {
       })
     ]
    });
+}
+
+function getEntry(globPath, pathDir) {
+	let files = glob.sync(globPath);
+	let entries = {};
+  let	entry;
+  let dirname;
+  let basename;
+  let pathname;
+  let extname;
+
+	for (var i = 0; i < files.length; i++) {
+		entry = files[i];
+		dirname = path.dirname(entry);
+		extname = path.extname(entry);
+		basename = path.basename(entry, extname);
+		pathname = path.join(dirname, basename);
+		pathname = pathDir ? pathname.replace(new RegExp('^' + pathDir), '') : pathname;
+		entries[pathname] = ['./' + entry];
+	}
+	return entries;
 }
