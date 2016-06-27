@@ -9,6 +9,7 @@ var app = app || {};
 app = (function(){
   var init = function() {
     $('h1').append('<p>this is js generate...</p>');
+    $('#login-panel').html('Login | Register');
   }
 
   return {
