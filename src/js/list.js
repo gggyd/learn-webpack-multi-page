@@ -6,8 +6,8 @@ require('../css/list.css');
 var app = app || {};
 
 app = (function(){
-  init = function() {
-
+  var init = function() {
+    // console.log('init');
   }
 
   return {
