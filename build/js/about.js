@@ -1,0 +1,1 @@
+webpackJsonp([0],{0:function(n,i,t){(function(n){"use strict";t(2),t(6),t(8);var i=i||{};i=function(){var i=function(){n("h1").append("<p>welcome you!</p>")};return{init:i}}(),i.init()}).call(i,t(1))},8:function(n,i){}});
