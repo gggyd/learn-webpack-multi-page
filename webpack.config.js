@@ -1,8 +1,9 @@
 const path = require('path');
-var webpack = require('webpack');
+const webpack = require('webpack');
 const merge = require('webpack-merge');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var HtmlWebpackPlugin = require('html-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CleanPlugin = require('clean-webpack-plugin');
 
 const TARGET = process.env.npm_lifecycle_event;
 const buildPath = 'build';
@@ -19,7 +20,7 @@ const common = {
   },
   output: {
     path: PATHS.build,
-    publicPath: '/' + buildPath + '/',
+    publicPath: '/',
     filename: 'js/[name].js',
     chunkFilename: 'js/[id].chunk.js'
   },
@@ -91,12 +92,12 @@ if (TARGET === 'start' || !TARGET) {
 if (TARGET === 'build') {
   module.exports = merge(common, {
     output: {
-      path: PATHS.build,
-      publicPath: '/',
-      filename: 'js/[name].js',
-      chunkFilename: 'js/[id].chunk.js'
+    publicPath: '/',
     },
     plugins: [
+      new CleanPlugin([PATHS.build], {
+        verbose: false
+      }),
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': '"production"'
       }),
